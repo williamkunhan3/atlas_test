@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iframe 测试页</title>
+<style>
+  :root{
+    --bg:#0e1116;
+    --panel:#161b22;
+    --line:#283341;
+    --ink:#e6edf3;
+    --muted:#8b98a5;
+    --accent:#4cc38a;
+    --accent2:#f2c14e;
+    --warn:#e5534b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"SF Mono",ui-monospace,"Cascadia Code",Menlo,Consolas,monospace;
+    background:var(--bg);
+    color:var(--ink);
+    padding:20px;
+    min-height:100vh;
+  }
+  .wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+  .head{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    background:linear-gradient(135deg,rgba(76,195,138,.08),transparent);
+  }
+  .head h1{font-size:16px;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 1.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .head p{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.5}
+  .card{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    background:var(--panel);
+  }
+  .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+  .counter{display:flex;align-items:center;gap:14px}
+  .count-num{
+    font-size:42px;font-weight:700;color:var(--accent2);
+    min-width:70px;text-align:center;
+    font-variant-numeric:tabular-nums;
+  }
+  button{
+    font-family:inherit;
+    border:1px solid var(--line);
+    background:#1f2733;
+    color:var(--ink);
+    padding:11px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+    transition:.15s;
+  }
+  button:hover{border-color:var(--accent);background:#243140}
+  button:active{transform:scale(.96)}
+  .btn-go{background:var(--accent);color:#062014;border-color:transparent;font-weight:600}
+  .btn-go:hover{background:#5fd49b}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  input[type=text]{
+    width:100%;font-family:inherit;background:#0d1117;color:var(--ink);
+    border:1px solid var(--line);border-radius:8px;padding:11px 12px;font-size:13px;
+  }
+  input[type=text]:focus{outline:none;border-color:var(--accent)}
+  .echo{margin-top:10px;font-size:13px;color:var(--accent);min-height:18px;word-break:break-all}
+  .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:4px}
+  .cell{aspect-ratio:1;border:1px solid var(--line);border-radius:6px;background:#0d1117;cursor:pointer;transition:.12s}
+  .cell:hover{border-color:var(--accent2)}
+  .cell.on{background:var(--accent2);border-color:var(--accent2)}
+  .slider-val{color:var(--accent2);font-weight:700}
+  .foot{font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+  .ok{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <h1><span class="dot"></span>IFRAME 交互测试</h1>
+    <p>如果你能在 Qualtrics 里看到这个页面，并且下面的东西<span class="ok">能点、能拖、能输入</span>，那 iframe 就完全没问题。</p>
+  </div>
+
+  <div class="card">
+    <div class="label">① 点击测试</div>
+    <div class="counter">
+      <div class="count-num" id="count">0</div>
+      <div class="row">
+        <button class="btn-go" id="plus">点我 +1</button>
+        <button id="reset">归零</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">② 拖动测试</div>
+    <input type="range" id="slider" min="0" max="100" value="30">
+    <div style="margin-top:8px;font-size:13px">当前值: <span class="slider-val" id="sval">30</span></div>
+  </div>
+
+  <div class="card">
+    <div class="label">③ 输入测试</div>
+    <input type="text" id="txt" placeholder="在这里随便打几个字…">
+    <div class="echo" id="echo"></div>
+  </div>
+
+  <div class="card">
+    <div class="label">④ 点格子测试（模拟交互式地图）</div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="foot">
+    页面已加载 · <span id="time"></span><br>
+    全部能动 = iframe 嵌入与交互均正常 ✓
+  </div>
+
+</div>
+
+<script>
+  // ① counter
+  let c = 0;
+  const countEl = document.getElementById('count');
+  document.getElementById('plus').onclick = () => { c++; countEl.textContent = c; ping('click', c); };
+  document.getElementById('reset').onclick = () => { c = 0; countEl.textContent = 0; };
+
+  // ② slider
+  const slider = document.getElementById('slider');
+  const sval = document.getElementById('sval');
+  slider.oninput = () => { sval.textContent = slider.value; };
+
+  // ③ text echo
+  const txt = document.getElementById('txt');
+  const echo = document.getElementById('echo');
+  txt.oninput = () => { echo.textContent = txt.value ? '你输入了: ' + txt.value : ''; };
+
+  // ④ grid
+  const grid = document.getElementById('grid');
+  for (let i = 0; i < 25; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.onclick = () => { cell.classList.toggle('on'); ping('cell', i); };
+    grid.appendChild(cell);
+  }
+
+  // load time
+  document.getElementById('time').textContent = new Date().toLocaleTimeString();
+
+  // postMessage to parent (Qualtrics) — useful for the real data-capture step later
+  function ping(type, value) {
+    try {
+      window.parent.postMessage({ source: 'iframe-test', type, value, t: Date.now() }, '*');
+    } catch (e) {}
+  }
+  // tell parent we loaded
+  ping('loaded', true);
+</script>
+</body>
+</html>
