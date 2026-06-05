@@ -142,8 +142,8 @@ function draw(){
   ctx.textAlign='right';ctx.textBaseline='middle';
   for(let t=0;t<=1.0001;t+=0.2){const py=dy2px(t);ctx.beginPath();ctx.moveTo(M.l,py);ctx.lineTo(M.l-6,py);ctx.stroke();ctx.fillText(t.toFixed(1),M.l-10,py);}
   ctx.fillStyle='#1a1a1a';ctx.font='600 19px Georgia,serif';ctx.textAlign='center';ctx.textBaseline='top';
-  ctx.fillText('Dimension 1',M.l+PW/2,M.t+PH+38);
-  ctx.save();ctx.translate(26,M.t+PH/2);ctx.rotate(-Math.PI/2);ctx.textBaseline='alphabetic';ctx.fillText('Dimension 2',0,0);ctx.restore();
+  ctx.fillText('Analog  \u2194  Digital',M.l+PW/2,M.t+PH+38);
+  ctx.save();ctx.translate(26,M.t+PH/2);ctx.rotate(-Math.PI/2);ctx.textBaseline='alphabetic';ctx.fillText('User-Facing  \u2194  Infrastructure',0,0);ctx.restore();
   // colorbar
   const cbx=M.l+PW+34,cby=M.t+14,cbw=20,cbh=PH-28;
   for(let k=0;k<cbh;k++){const t=1-k/cbh,g=Math.round(255*(1-t));ctx.fillStyle='rgb('+g+','+g+','+g+')';ctx.fillRect(cbx,cby+k,cbw,1);}
